@@ -39,7 +39,7 @@ const metaLine=m=>[m.year,m.genre,m.runtime?m.runtime+" Min.":""].filter(Boolean
 const fmtWhen=d=>new Date(d).toLocaleString("de-CH",{weekday:"long",day:"numeric",month:"long",hour:"2-digit",minute:"2-digit"});
 
 function nextPlanned(){const now=Date.now()-3*3600e3;return M().filter(m=>m.status==="planned"&&m.date&&new Date(m.date).getTime()>=now).sort((a,b)=>a.date.localeCompare(b.date))[0]}
-function summary(){if(!movies.loaded)return {text:"Lädt …",big:""};const n=nextPlanned();if(n)return {text:"Nächster Filmabend: "+n.title,big:new Date(n.date).toLocaleDateString("de-CH",{weekday:"short",day:"numeric",month:"short"})};const w=M().filter(m=>m.status==="watch").length;return {text:w?w+" Filme auf der Merkliste":"Noch keine Filme gemerkt",big:""}}
+function summary(){if(!movies.loaded)return {text:"Lädt …",big:""};const n=nextPlanned();if(n)return {text:"Nächster Filmabend: "+n.title,big:new Date(n.date).toLocaleDateString("de-CH",{weekday:"short",day:"numeric",month:"short"})};const w=M().filter(m=>m.status==="watch").length;return {text:w?w+(w===1?" Film":" Filme")+" auf der Merkliste":"Noch keine Filme gemerkt",big:""}}
 
 function view(){
   return `<h1>${tab==="find"?"Was schauen wir?":tab==="list"?"Unsere Liste":"Filmabende"}</h1>`+seg([["find","Entdecken"],["list","Unsere Liste"],["cal","Kalender"]],tab,"ftab")+(tab==="find"?findV():tab==="list"?listV():calV());
