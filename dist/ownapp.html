@@ -688,6 +688,25 @@ const TEMPLATES={
  SMP:[{name:"Totem-Pop-Push",when:"Das Totem des Gegners ist gerade geplatzt",steps:["Sofort nachsetzen, nicht zögern","Stärkste Waffe nehmen","Gegner nicht zum Swap kommen lassen","Nach 3 Sekunden Lage neu prüfen"],counter:"Gegner hat schnellen Swap → nicht überziehen, Totem selbst bereithalten"}]
 };
 const WARMUPS={"Kurz (10 Min.)":[["Reaktionstest",2],["Strafe & Bewegung ohne Gegner",3],["2 lockere Duels",5]],"Normal (20 Min.)":[["Reaktionstest + CPS",3],["Bridge / Block-Clutch",4],["Aim auf Bot oder Freund",5],["3 Duels im Haupt-Kit",8]],"Vor Tier-Test (30 Min.)":[["Wasser trinken, Handy weg",1],["Reaktionstest",3],["Movement",5],["Drill im Test-Kit",8],["4 ernste Duels",10],["2 Min. Pause, durchatmen",3]]};
+/* Profi-Niveau: Mace (LT3+) */
+DRILLS.Mace.push(
+ ["Attribute-Swap","Schwert halten, kurz vor dem Treffer auf die Mace wechseln, einen Tick danach zurück","Profi"],
+ ["Stun-Slam","Axt-Disable und Smash im selben Moment, während der Schild unten ist","Profi"],
+ ["Pearl-Catching","Mit Wind Charge und Perle schnell Höhe gewinnen","Profi"],
+ ["Windcharge-Punching","Die Wind Charge des Gegners wegschlagen, damit sein Catch ins Leere geht","Elite"],
+ ["Pearl-Stalking","Dem Gegner auf seinen Landepunkt nachpearlen und Druck halten","Elite"],
+ ["Pearl-Sniping","Die Perle des Gegners in der Luft abfangen oder ablenken","Elite"],
+ ["Elytra-Raketen-Dive","Mit Raketen tauchen, Chestplate-Swap, Treffer","Elite"],
+ ["Catch-Konter","Catches des Gegners lesen und nicht unter ihm stehen bleiben","Elite"]);
+TEMPLATES.Mace=[
+ {name:"Stun-Slam",level:"Profi",when:"Gegner blockt mit Schild, während du von oben kommst",steps:["Mit Wind Charge über den Gegner","Im Fall die Axt in die Hand","Mit der Axt treffen (Schild-Disable) und im selben Moment auf die Mace wechseln","Smash landet, solange der Schild unten ist"],counter:"Gegner nimmt den Schild nicht hoch → direkt Smash oder Attribute-Swap"},
+ {name:"Attribute-Swap",level:"Profi",when:"Gegner in voller Netherite, ein normaler Smash macht zu wenig",steps:["Wind Charge hoch","Im Fall das Schwert in der Hand halten","Kurz vor dem Treffer auf die Mace wechseln","Einen Tick nach dem Treffer zurück aufs Schwert"],counter:"Gegner weicht seitlich aus → nicht blind smashen, Höhe halten und neu anvisieren"},
+ {name:"Pearl-Catching",level:"Profi",when:"Du brauchst schnell viel Höhe oder willst aus einer Combo raus",steps:["Springen und Wind Charge auf die Füsse","Nach oben schauen","Perle werfen","Sofort eine Wind Charge hinterher, die die Perle trifft – du landest oben"],counter:"Gegner punched deine Wind Charge weg → Perle allein werfen oder seitlich raus"},
+ {name:"Pearl-Stalking",level:"Elite",when:"Gegner pearlt weg, um sich zu resetten oder zu heilen",steps:["Seine Perle mit dem Blick verfolgen","Sofort eigene Perle auf seinen Landepunkt","Beim Landen direkt Wind Charge hoch","Von oben Druck machen, bevor er heilen kann"],counter:"Gegner pearlt zurück → nicht blind nach, Höhe halten und seinen Landepunkt abwarten"},
+ {name:"Pearl-Sniping",level:"Elite",when:"Gegner wirft eine Perle (Flucht oder Catch)",steps:["Flugbahn seiner Perle früh lesen","Eigene Wind Charge in die Flugbahn – die Perle wird abgelenkt","Gegner landet falsch oder gar nicht → sofort Position über ihm","Smash, solange er sich neu orientiert"],counter:"Verpasst → nicht nachjagen, Abstand halten und nächste Chance abwarten"},
+ {name:"Elytra-Raketen-Dive",level:"Elite",when:"Offenes Gelände, Gegner am Boden",steps:["Elytra an, mit Raketen hoch","Mit Rakete auf den Gegner tauchen","Kurz vorher Elytra gegen Brustpanzer tauschen","Mace-Treffer, optional mit Attribute-Swap"],counter:"Gegner schaut hoch und weicht aus → vorbeifliegen und neu ansetzen statt zu crashen"},
+ {name:"Catch-Konter",level:"Elite",when:"Gegner macht einen Pearl-Catch über dir",steps:["Sobald er hochgeht: nicht stehen bleiben","Seitlich raus aus seinem Landepunkt","Schild bereit, wenn er fällt","Nach seinem Versuch sofort selbst hoch"],counter:"Gegner bleibt oben und wartet → selber catchen oder Pearl-Sniping"}];
+const ADV_TECH={Mace:"Attribute-Swap, Stun-Slam, Pearl-Catching, Pearl-Stalking, Pearl-Sniping, Windcharge-Punching, Elytra-Dives mit Raketen und Chestplate-Swap, Catches lesen und kontern"};
 const MISTAKES=["Positionierung","Aim","Timing","Inventar","Movement","Tilt","Ping/Lag","Zu aggressiv","Zu passiv"];
 const PREP=["Genug geschlafen","Gegessen & getrunken","Warm-up gemacht","Discord/Handy stumm","Maus & Settings gecheckt","Kein Stress vorher"];
 const TSTAT=["Idee","Testen","Sitzt"];
@@ -722,6 +741,10 @@ function tilt(){const L=S().sessions.slice(-4);if(!L.length)return 0;const feel=
 const fmtT=ms=>{const s=Math.max(0,Math.floor(ms/1000));return (s>=3600?Math.floor(s/3600)+":":"")+pad(Math.floor(s/60)%60)+":"+pad(s%60)};
 const fmtS=sec=>Math.floor(sec/60)+":"+pad(Math.floor(sec%60))+"."+Math.floor((sec*10)%10);
 const hm=m=>m>=60?Math.floor(m/60)+" Std."+(m%60?" "+m%60+" Min.":""):m+" Min.";
+const ADV=k=>ti(S().tiers[k].cur)>=ti("LT3");
+let showBasics=false;
+const visDrills=k=>ADV(k)&&!showBasics?allDrills(k).filter(d=>d[2]!=="Basis"):allDrills(k);
+const level=k=>{const t=S().tiers[k];return ADV(k)?`Der Spieler ist ${t.cur} in ${k} (Ziel ${t.goal}) und beherrscht die Grundlagen sicher (einfache Smash-Hits, Wind-Charge-Combos, Density-Timing, Breach-Swap). Schlage NICHTS Einfaches vor – nur fortgeschrittene Techniken auf ${t.goal}-Niveau und darüber${ADV_TECH[k]?", z.B. "+ADV_TECH[k]:""}.`:`Der Spieler ist ${t.cur} in ${k} (Ziel ${t.goal}).`};
 const allDrills=k=>[...(DRILLS[k]||[]),...S().customDrills.filter(d=>d.kit===k).map(d=>[d.name,d.desc,"Eigener"])];
 const todayKit=()=>{const p=S().plan[todayIdx()];return p.kit&&p.kit!=="-"?p.kit:weakest()};
 const kitTac=k=>S().tactics.filter(t=>t.kit===k);
@@ -759,7 +782,7 @@ function overV(k){
   const t=S().tiers[k],wl=kitWL(k),running=run&&run.kit===k;
   const act=kitTac(k).filter(x=>x.active);
   const lastClip=clips.items.find(c=>c.kit===k&&c.analysis);
-  const open=allDrills(k).filter(d=>(S().drillStatus[d[0]]||0)<2).slice(0,2);
+  const open=visDrills(k).filter(d=>(S().drillStatus[d[0]]||0)<2).slice(0,2);
   const p=S().plan[todayIdx()];
   return `<section class="hero ${running?"running":""}">
     <div class="top"><span class="pill">${esc(k)} · ${t.cur} → Ziel ${t.goal}</span><span class="note">${gap(k)?gap(k)+(gap(k)===1?" Stufe":" Stufen")+" bis Ziel":"Ziel erreicht ✓"}</span></div>
@@ -790,7 +813,7 @@ function takV(k){
       ${t.when?`<span class="note">Wann: ${esc(t.when)}</span>`:""}
       <div class="hbar"><span class="note">${st.n?st.ok+"/"+st.n+" geklappt":"noch nicht bewertet"}</span><div class="b"><i class="win" style="width:${st.pct||0}%"></i></div><span class="num">${st.pct!=null?st.pct+"%":""}</span></div></button>`}).join("")}</div>`
     :all.length?`<p class="note">Keine Taktik in diesem Filter.</p>`:`<div class="empty"><p class="muted">Noch keine eigenen Taktiken für ${esc(k)}. Schreib auf, was du in welcher Situation machst – oder starte mit einer Vorlage.</p></div>`}
-  ${tpl.length?`<section class="card"><h2>Vorlagen für ${esc(k)}</h2>${tpl.map((t,i)=>`<div class="libitem"><b>${esc(t.name)}</b><span class="note">Wann: ${esc(t.when)}</span><button class="btn small ghost" data-tpl="${i}">+ Übernehmen und anpassen</button></div>`).join("")}</section>`:""}
+  ${tpl.length?`<section class="card"><h2>${ADV(k)?"Profi-Vorlagen":"Vorlagen"} für ${esc(k)}</h2>${ADV(k)?`<p class="note">Startpunkte auf deinem Niveau – pass die Schritte so an, wie du es spielst.</p>`:""}${tpl.map((t,i)=>`<div class="libitem">${t.level?`<span class="lvl">${esc(t.level)}</span>`:""}<b>${esc(t.name)}</b><span class="note">Wann: ${esc(t.when)}</span><button class="btn small ghost" data-tpl="${i}">+ Übernehmen und anpassen</button></div>`).join("")}</section>`:""}
   <p class="note">So setzt du sie um: Taktik öffnen → «Jetzt üben». Nach der Session sagst du pro Fokus-Taktik, ob sie geklappt hat. Daraus entsteht die Erfolgsquote.</p>`;
 }
 function tacPreview(t){return `<span class="lvl">Vorschlag</span><h3>${esc(t.name)}</h3>${t.when?`<p class="note">Wann: ${esc(t.when)}</p>`:""}<ol class="steps">${(t.steps||[]).map(s=>`<li>${esc(s)}</li>`).join("")}</ol>${t.counter?`<p class="note">Wenn der Gegner kontert: ${esc(t.counter)}</p>`:""}${t.tip?`<p class="note">Tipp: ${esc(t.tip)}</p>`:""}`}
@@ -834,7 +857,7 @@ function clipsV(k){
     <p class="note">Lade einen Medal-Clip oder eine ganze Aufnahme hoch. Claude schaut sich Standbilder daraus an und sagt dir, was falsch lief und was du besser machen kannst.</p>
     <button class="btn" data-upload ${App.sample?"":"disabled"}>🎬 Clip hochladen</button>
     ${App.sample?"":`<p class="note">Geht nur, wenn du die App über deinen Claude-Link öffnest.</p>`}
-    <details><summary class="note">So kommt dein Medal-Clip aufs Handy</summary><ol class="steps note"><li>Medal-App öffnen und den Clip antippen</li><li>Teilen → «Video sichern» bzw. «Herunterladen»</li><li>Hier auf «Clip hochladen» und das Video aus Fotos wählen</li><li>Am PC: Medal speichert Clips als MP4 im Medal-Ordner. Die kannst du direkt hier hochladen.</li></ol></details></section>
+    <details><summary class="note">So kommt dein Medal-Clip aufs Handy</summary><ol class="steps note"><li>Ein Medal-Link allein geht leider nicht: Die App darf keine Videos von anderen Seiten laden.</li><li>Medal-App öffnen und den Clip antippen</li><li>Teilen → «Video sichern» bzw. «Herunterladen»</li><li>Hier auf «Clip hochladen» und das Video aus Fotos wählen</li><li>Am PC: Medal speichert Clips als MP4 im Medal-Ordner. Die kannst du direkt hier hochladen.</li></ol></details></section>
   <div class="top"><h2>${clipAll?"Alle Clips":"Clips "+esc(k)}</h2><button class="linkbtn" id="clip-all">${clipAll?"Nur "+esc(k):"Alle Modi"}</button></div>
   ${!clips.loaded?`<p class="muted"><span class="spin"></span>Lädt …</p>`:L.length?`<div class="cliplist">${L.map(clipCard).join("")}</div>`:`<div class="empty"><p class="muted">Noch keine Clips${clipAll?"":" für "+esc(k)}.</p></div>`}`;
 }
@@ -854,6 +877,7 @@ function clipDetailV(id){
   ${a.drill?`<section class="card"><span class="lvl">Drill dazu</span><p>${esc(a.drill)}</p></section>`:""}
   ${a.unsicher?`<p class="note">Auf Standbildern nicht erkennbar: ${esc(a.unsicher)}</p>`:""}
   ${c.focus?`<p class="note">Deine Frage: ${esc(c.focus)}</p>`:""}
+  ${c.link?`<a class="btn ghost" href="${esc(c.link)}" target="_blank" rel="noopener">Auf Medal ansehen ↗</a>`:""}
   <section class="card"><h2>Nachfragen</h2>${(c.qa||[]).map(q=>`<div class="qa"><b>${esc(q.q)}</b><div class="coach">${esc(q.a)}</div></div>`).join("")}
     ${qaBusy?`<p><span class="spin"></span>Claude schaut nochmals hin …</p>`:""}
     <form class="row" id="qa-f"><input id="qa-q" placeholder="z.B. Was hätte ich bei Bild 4 machen sollen?" aria-label="Frage zum Clip"><button class="btn" type="submit" ${qaBusy||!App.sample?"disabled":""}>Fragen</button></form></section>
@@ -862,13 +886,14 @@ function clipDetailV(id){
 
 /* ---------- Training (pro Modus) ---------- */
 function trainV(k){
-  const running=run&&run.kit===k,L=allDrills(k);
+  const running=run&&run.kit===k,L=visDrills(k),hidden=allDrills(k).length-L.length;
   const recent=S().sessions.filter(s=>s.kit===k).sort((a,b)=>b.ts-a.ts).slice(0,5);
   return `<section class="hero ${running?"running":""}"><div class="top"><span class="pill">${running?"Läuft · "+esc(k):"Bereit · "+esc(k)}</span>${running&&run.tactics&&run.tactics.length?`<span class="note">Fokus: ${run.tactics.map(id=>esc((S().tactics.find(t=>t.id===id)||{}).name||"")).join(", ")}</span>`:""}</div>
     <div class="timer num" id="tm">${running?fmtT(Date.now()-run.start):"00:00"}</div>
     ${running?`<div class="grid2"><button class="btn dark" data-stop>Beenden & speichern</button><button class="btn clear" id="cancel">Verwerfen</button></div>`:run?`<p class="note">Es läuft schon eine ${esc(run.kit)}-Session. <button class="linkbtn" data-mode="${run.kit}">Zu ${esc(run.kit)}</button></p>`:`<button class="btn" data-start>Start · ${esc(k)}</button>`}</section>
   <div class="grid2"><button class="btn ghost" data-sub="warm">🔥 Warm-up</button><button class="btn ghost" id="manual">Session nachtragen</button></div>
   <section class="card"><div class="top"><h2>Drills ${esc(k)}</h2><span class="note">${L.filter(d=>S().drillStatus[d[0]]===2).length}/${L.length} sitzen</span></div>
+    ${ADV(k)?`<button class="linkbtn" id="basics">${showBasics?"Grundlagen ausblenden":"Grundlagen anzeigen ("+hidden+")"}</button>`:""}
     ${running?`<p class="note">Tippe ☐, um einen Drill zu dieser Session hinzuzufügen.</p>`:""}
     <div class="lib">${L.map(([n,d,lv])=>{const s=S().drillStatus[n]||0,inRun=running&&run.drills.includes(n);return `<div class="libitem"><div class="top"><span class="lvl">${esc(lv)}</span>${running?`<button class="linkbtn" data-drill="${esc(n)}" aria-pressed="${inRun}">${inRun?"☑ in Session":"☐ üben"}</button>`:""}</div><b>${esc(n)}</b><span class="note">${esc(d)}</span>
       <div class="seg3">${["Neu","Lerne ich","Sitzt"].map((t,i)=>`<button class="s${i}" data-ds="${esc(n)}" data-v="${i}" aria-pressed="${s===i}">${t}</button>`).join("")}</div></div>`}).join("")}</div>
@@ -1004,6 +1029,7 @@ function bind(){
   $$("[data-upload]").forEach(b=>b.onclick=openClipUpload);
   $$("[data-drill]").forEach(b=>b.onclick=()=>{const n=b.dataset.drill,set=new Set(run.drills);set.has(n)?set.delete(n):set.add(n);run.drills=[...set];persistRun();render()});
   $$("[data-ds]").forEach(b=>b.onclick=()=>{s.drillStatus[b.dataset.ds]=+b.dataset.v;commit(+b.dataset.v===2?"Sitzt! 💪":"")});
+  on("#basics",()=>{showBasics=!showBasics;render()});
   on("#cd-add",()=>{const n=$("#cd-n").value.trim();if(!n){toast("Name eingeben");return}s.customDrills.push({name:n,desc:"",kit:k});commit("Drill hinzugefügt")});
   const qcf=$("#qcf");if(qcf)qcf.onsubmit=e=>{e.preventDefault();const q=$("#qcq").value.trim();if(!q)return;tab="more";sub="more/coach";askCoach(q)};
   // Taktiken
@@ -1116,7 +1142,7 @@ function openFinish(min,k,dr,manual,tacIds){
 /* ---------- Claude: Coach, Taktiken ---------- */
 function context(k){
   const s=S();
-  return `Spieler: ${s.ign}. Tier-Stand und Ziele: ${JSON.stringify(s.tiers)}
+  return `Spieler: ${s.ign}. ${k?level(k):KITS.map(level).join(" ")} Tier-Stand und Ziele: ${JSON.stringify(s.tiers)}
 Eigene Taktiken: ${JSON.stringify(s.tactics.filter(t=>!k||t.kit===k).map(t=>({modus:t.kit,name:t.name,wann:t.when,schritte:t.steps,status:TSTAT[t.status],erfolg:tacStats(t.id)})))}
 Letzte Sessions: ${JSON.stringify(s.sessions.slice(-20).map(x=>({datum:dkey(x.ts),modus:x.kit,min:x.min,w:x.w,l:x.l,gefuehl:x.feel,notiz:x.note})))}
 Letzte Clip-Analysen: ${JSON.stringify(clips.items.filter(c=>c.analysis&&(!k||c.kit===k)).slice(0,5).map(c=>({modus:c.kit,ergebnis:c.result,zusammenfassung:c.analysis.zusammenfassung,fehler:(c.analysis.fehler||[]).map(f=>f.titel)})))}`;
@@ -1135,7 +1161,7 @@ Frage: ${q}`;
 const TAC_JSON=`{"name": kurzer Name, "when": "in welcher Situation", "steps": ["Schritt 1", "..."] (3-6 kurze Schritte), "counter": "was tun, wenn der Gegner kontert", "tip": "ein Satz, worauf man beim Üben achten soll"}`;
 async function suggestTactic(k){
   if(!App.sample)return;tacAI={busy:true};render();
-  try{const t=await App.sample.json(`Du bist ein Minecraft-PvP-Coach (Java 1.21, MCTiers). Schlage dem Spieler EINE neue, konkrete Taktik für den Modus ${k} vor, die zu seinen Schwächen passt und die er noch nicht hat. Deutsch, Schweizer Schreibweise (ss).
+  try{const t=await App.sample.json(`Du bist ein Minecraft-PvP-Coach (Java 1.21, MCTiers). Schlage dem Spieler EINE neue, konkrete und anspruchsvolle Taktik für den Modus ${k} vor, die zu seinen Schwächen passt und die er noch nicht hat. Keine Grundlagen. Deutsch, Schweizer Schreibweise (ss).
 ${context(k)}
 Antworte NUR mit JSON: ${TAC_JSON}`,{modelTier:"default",cache:false});tacAI={t}}
   catch(e){tacAI={err:e&&e.code==="not_granted"?"Der Coach braucht deine Erlaubnis.":"Hat nicht geklappt. Versuch es nochmals."}}
@@ -1191,7 +1217,7 @@ async function openClipUpload(){
       <div class="grid2"><button class="btn small ghost" id="cv-s">⇤ Start = jetzt</button><button class="btn small ghost" id="cv-e">Ende = jetzt ⇥</button></div>
       <button class="btn small ghost" id="cv-m">📍 Wichtiger Moment (z.B. hier verloren)</button><div class="chips" id="cv-marks"></div>
       <div class="grid2"><label>Modus<select id="cv-k">${KITS.map(x=>`<option ${x===k?"selected":""}>${x}</option>`).join("")}</select></label><label>Ergebnis<select id="cv-r"><option value="">–</option><option value="W">Gewonnen</option><option value="L">Verloren</option></select></label></div>
-      <label>Gegner<input id="cv-o" placeholder="optional"></label>
+      <div class="grid2"><label>Gegner<input id="cv-o" placeholder="optional"></label><label>Medal-Link<input id="cv-l" type="url" inputmode="url" placeholder="optional"></label></div>
       <label>Worauf soll Claude achten?<textarea id="cv-q" rows="2" placeholder="z.B. Warum verliere ich die Trades? Habe ich meine Taktik umgesetzt?"></textarea></label>
       <button class="btn" id="cv-go">Analysieren</button>
       <p class="note">Claude bekommt ${maxN} Standbilder aus dem gewählten Bereich, keine Bewegung und keinen Ton. Für Timing-Fragen setz 📍 auf die wichtigen Momente. Das Video selbst wird nicht gespeichert.</p>
@@ -1208,7 +1234,7 @@ async function openClipUpload(){
     $("#cv-e").onclick=()=>{b=Math.max(v.currentTime,a+1);info()};
     $("#cv-m").onclick=()=>{marks.push(Math.round(v.currentTime*10)/10);marks.sort((x,y)=>x-y);info()};
     $("#cv-go").onclick=async()=>{
-      const kit=$("#cv-k").value,res=$("#cv-r").value,opp=$("#cv-o").value.trim(),focus=$("#cv-q").value.trim();
+      const kit=$("#cv-k").value,res=$("#cv-r").value,opp=$("#cv-o").value.trim(),focus=$("#cv-q").value.trim(),lk=$("#cv-l").value.trim(),link=/^https:\/\//.test(lk)?lk:"";
       $("#cv-body").hidden=true;$("#cv-prog").hidden=false;$(".filebtn").hidden=true;
       let frames;
       try{frames=await grabFrames(v,frameTimes(a,b,marks,maxN),lim.images.maxInputBytes,p=>{$("#cv-pb").style.width=Math.round(p*40)+"%"})}
@@ -1220,7 +1246,7 @@ ${frames.map((f,i)=>`Bild ${i+1} = ${fmtS(f.t)}`).join("\n")}
 ${marks.length?"Der Spieler hat diese Momente als wichtig markiert: "+marks.map(fmtS).join(", "):""}
 Ergebnis: ${res==="W"?"gewonnen":res==="L"?"verloren":"unbekannt"}.${opp?" Gegner: "+opp+".":""}
 ${focus?"Frage des Spielers: "+focus:""}
-Tier jetzt ${S().tiers[kit].cur}, Ziel ${S().tiers[kit].goal}.
+${level(kit)} Bewerte auf diesem Niveau – keine Anfänger-Tipps. Benutze seine Begriffe für Techniken.
 Seine Taktiken für ${kit}: ${tacs.length?JSON.stringify(tacs.map(t=>({name:t.name,wann:t.when,schritte:t.steps}))):"keine"}
 Achte auf: Abstand und Positionierung, Fadenkreuz und Blickrichtung, Item in der Hand und Hotbar, Leben, Rüstung, Hunger, Effekte, Höhe und Umgebung, und was sich zwischen den Bildern verändert.
 Sei ehrlich, konkret und hilfreich. Was man auf Standbildern nicht sicher erkennt (z.B. Klick-Timing, CPS), schreib unter "unsicher" statt zu raten. Wenn die Bilder kein Minecraft-PvP zeigen, sag das in "zusammenfassung" und lass die Listen leer.
@@ -1232,7 +1258,7 @@ Höchstens 5 Fehler, die wichtigsten zuerst.`;
         $("#cv-pb").style.width="100%";
         const id=uid();
         const title=`${kit}${opp?" vs "+opp:""}${res?" · "+(res==="W"?"Win":"Loss"):""}`;
-        await clips.put(id,{ts:Date.now(),kit,result:res,opp,focus,title,range:[a,b],marks,frames:frames.map(f=>({t:f.t,img:f.img})),analysis:an,qa:[]});
+        await clips.put(id,{ts:Date.now(),kit,result:res,opp,focus,link,title,range:[a,b],marks,frames:frames.map(f=>({t:f.t,img:f.img})),analysis:an,qa:[]});
         if(url)URL.revokeObjectURL(url);
         close();S().mode=kit;doc.save();tab="clips";sub="clip/"+id;render();scrollTo(0,0);toast("Analyse fertig");
       }catch(e){
